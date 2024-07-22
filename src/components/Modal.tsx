@@ -6,13 +6,7 @@ export interface ModalProps {
   isOpen: boolean;
   onClose: () => void;
   mode: "view" | "create" | "edit";
-  task?: {
-    _id?: string;
-    title: string;
-    description: string;
-    updatedAt: string;
-    dueDate?: string;
-  };
+  task?,
   onSave?: ({
     _id,
     title,

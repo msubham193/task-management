@@ -1,5 +1,5 @@
 
-import React from "react";
+
 import { deleteTask } from "../api/api";
 import toast from "react-hot-toast";
 import { formatDate } from "../utils/formateDate";
