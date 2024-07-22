@@ -1,18 +1,26 @@
-import React, { useEffect, useState } from "react";
-import TaskCard from "../components/TaskCard";
-import { addTask, getTask, updateTask } from "../api/api";
+import React, { useEffect, useState, MouseEvent, ChangeEvent } from "react";
+import TaskCard, { Task } from "../components/TaskCard"; // Assuming Task is exported from TaskCard
+import { addTask, getTask, updateTask } from "../api/api"; // Assuming these functions are properly typed
 import toast from "react-hot-toast";
-import Modal from "../components/Modal";
+import Modal, { ModalMode } from "../components/Modal"; // Assuming ModalMode is exported from Modal
 
-const Home = () => {
-  const [tasks, setTasks] = useState([]);
-  const [error, setError] = useState(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [selectedTask, setSelectedTask] = useState(undefined);
-  const [modalMode, setModalMode] = useState("view");
-  const [searchQuery, setSearchQuery] = useState("");
-  const [sortOrder, setSortOrder] = useState("recent");
+type TaskType = {
+  _id: string;
+  title: string;
+  description: string;
+  dueDate: string;
+  status: string;
+};
+
+const Home: React.FC = () => {
+  const [tasks, setTasks] = useState<TaskType[]>([]);
+  const [error, setError] = useState<string | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [selectedTask, setSelectedTask] = useState<TaskType | undefined>(undefined);
+  const [modalMode, setModalMode] = useState<ModalMode>("view");
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [sortOrder, setSortOrder] = useState<string>("recent");
 
   const columns = [
     { id: "todo", title: "TODO" },
@@ -26,15 +34,15 @@ const Home = () => {
         const data = await getTask();
         setTasks(data);
       } catch (err) {
-        toast.error(err.message);
-        setError(err.message);
+        toast.error((err as Error).message);
+        setError((err as Error).message);
       }
     };
 
     fetchTasks();
   }, []);
 
-  const openModal = (mode, task?) => {
+  const openModal = (mode: ModalMode, task?: TaskType) => {
     setModalMode(mode);
     setSelectedTask(task);
     setIsModalOpen(true);
@@ -44,7 +52,7 @@ const Home = () => {
     setIsModalOpen(false);
   };
 
-  const createTask = async (title, description, dueDate) => {
+  const createTask = async (title: string, description: string, dueDate: string) => {
     try {
       setLoading(true);
       const data = await addTask(title, description, dueDate);
@@ -52,22 +60,19 @@ const Home = () => {
       toast.success("Task created successfully");
       setTasks([...tasks, data.task]);
     } catch (error) {
-      toast.error(error);
+      toast.error((error as Error).message);
       setLoading(false);
     }
   };
 
-  const updateTaskDetails = async (updatedTask) => {
+  const updateTaskDetails = async (updatedTask: TaskType) => {
     try {
       setLoading(true);
 
-      // Await the updateTask function to ensure it completes before proceeding
       const response = await updateTask(updatedTask._id, updatedTask);
 
-      // Extract the updated task from the response if necessary
       const updatedTaskFromResponse = response;
 
-      // Update the state with the modified task list
       setTasks((prevTasks) =>
         prevTasks.map((task) =>
           task._id === updatedTaskFromResponse._id
@@ -79,12 +84,12 @@ const Home = () => {
       setLoading(false);
       toast.success("Task updated successfully");
     } catch (error) {
-      toast.error(error.message);
+      toast.error((error as Error).message);
       setLoading(false);
     }
   };
 
-  const handleSaveTask = async (task) => {
+  const handleSaveTask = async (task: TaskType) => {
     if (modalMode === "create") {
       await createTask(task.title, task.description, task.dueDate);
     } else if (modalMode === "edit") {
@@ -93,20 +98,20 @@ const Home = () => {
     closeModal();
   };
 
-  const handleDeleteTask = (taskId) => {
+  const handleDeleteTask = (taskId: string) => {
     console.log(taskId);
     // Implement delete functionality here
   };
 
-  const onDragStart = (e, taskId) => {
+  const onDragStart = (e: React.DragEvent, taskId: string) => {
     e.dataTransfer.setData("taskId", taskId);
   };
 
-  const onDragOver = (e) => {
+  const onDragOver = (e: React.DragEvent) => {
     e.preventDefault();
   };
 
-  const onDrop = (e, status) => {
+  const onDrop = (e: React.DragEvent, status: string) => {
     e.preventDefault();
     const taskId = e.dataTransfer.getData("taskId");
     const updatedTasks = tasks.map((task) => {
@@ -119,11 +124,11 @@ const Home = () => {
     setTasks(updatedTasks);
   };
 
-  const handleSearchChange = (e) => {
+  const handleSearchChange = (e: ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);
   };
 
-  const handleSortChange = (e) => {
+  const handleSortChange = (e: ChangeEvent<HTMLSelectElement>) => {
     setSortOrder(e.target.value);
   };
 
@@ -133,9 +138,9 @@ const Home = () => {
     )
     .sort((a, b) => {
       if (sortOrder === "recent") {
-        return new Date(b.date) - new Date(a.date);
+        return new Date(b.dueDate).getTime() - new Date(a.dueDate).getTime();
       } else {
-        return new Date(a.date) - new Date(b.date);
+        return new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime();
       }
     });
 

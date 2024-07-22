@@ -7,7 +7,7 @@ const User = () => {
   });
 
   useEffect(() => {
-    const userData = JSON.parse(localStorage.getItem("user"));
+    const userData = JSON.parse(localStorage.getItem("user") || "");
     if (userData) {
       setUserDetails({
         name: userData.firstname + userData.lastname,
