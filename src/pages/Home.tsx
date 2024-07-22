@@ -1,8 +1,8 @@
-import React, { useEffect, useState, MouseEvent, ChangeEvent } from "react";
-import TaskCard, { Task } from "../components/TaskCard"; // Assuming Task is exported from TaskCard
+import React, { useEffect, useState,  ChangeEvent } from "react";
+import TaskCard from "../components/TaskCard"; // Assuming Task is exported from TaskCard
 import { addTask, getTask, updateTask } from "../api/api"; // Assuming these functions are properly typed
 import toast from "react-hot-toast";
-import Modal, { ModalMode } from "../components/Modal"; // Assuming ModalMode is exported from Modal
+import Modal, { ModalProps } from "../components/Modal"; // Assuming ModalMode is exported from Modal
 
 type TaskType = {
   _id: string;
@@ -14,11 +14,13 @@ type TaskType = {
 
 const Home: React.FC = () => {
   const [tasks, setTasks] = useState<TaskType[]>([]);
-  const [error, setError] = useState<string | null>(null);
+
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
-  const [loading, setLoading] = useState<boolean>(false);
-  const [selectedTask, setSelectedTask] = useState<TaskType | undefined>(undefined);
-  const [modalMode, setModalMode] = useState<ModalMode>("view");
+
+  const [selectedTask, setSelectedTask] = useState<TaskType | undefined>(
+    undefined
+  );
+  const [modalMode, setModalMode] = useState<ModalProps["mode"]>("view");
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [sortOrder, setSortOrder] = useState<string>("recent");
 
@@ -35,14 +37,13 @@ const Home: React.FC = () => {
         setTasks(data);
       } catch (err) {
         toast.error((err as Error).message);
-        setError((err as Error).message);
       }
     };
 
     fetchTasks();
   }, []);
 
-  const openModal = (mode: ModalMode, task?: TaskType) => {
+  const openModal = (mode: ModalProps["mode"], task?: TaskType) => {
     setModalMode(mode);
     setSelectedTask(task);
     setIsModalOpen(true);
@@ -52,23 +53,23 @@ const Home: React.FC = () => {
     setIsModalOpen(false);
   };
 
-  const createTask = async (title: string, description: string, dueDate: string) => {
+  const createTask = async (
+    title: string,
+    description: string,
+    dueDate: string
+  ) => {
     try {
-      setLoading(true);
       const data = await addTask(title, description, dueDate);
-      setLoading(false);
+
       toast.success("Task created successfully");
       setTasks([...tasks, data.task]);
     } catch (error) {
       toast.error((error as Error).message);
-      setLoading(false);
     }
   };
 
   const updateTaskDetails = async (updatedTask: TaskType) => {
     try {
-      setLoading(true);
-
       const response = await updateTask(updatedTask._id, updatedTask);
 
       const updatedTaskFromResponse = response;
@@ -81,11 +82,9 @@ const Home: React.FC = () => {
         )
       );
 
-      setLoading(false);
       toast.success("Task updated successfully");
     } catch (error) {
       toast.error((error as Error).message);
-      setLoading(false);
     }
   };
 
@@ -98,10 +97,7 @@ const Home: React.FC = () => {
     closeModal();
   };
 
-  const handleDeleteTask = (taskId: string) => {
-    console.log(taskId);
-    // Implement delete functionality here
-  };
+
 
   const onDragStart = (e: React.DragEvent, taskId: string) => {
     e.dataTransfer.setData("taskId", taskId);
@@ -213,7 +209,7 @@ const Home: React.FC = () => {
                       task={task}
                       tasks={tasks}
                       setTask={setTasks}
-                      onDelete={handleDeleteTask}
+                 
                       openModal={openModal}
                     />
                   </div>

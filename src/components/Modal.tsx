@@ -2,7 +2,7 @@ import { Loader } from "lucide-react";
 import React, { useState, useEffect } from "react";
 import { formatDate } from "../utils/formateDate";
 
-interface ModalProps {
+export interface ModalProps {
   isOpen: boolean;
   onClose: () => void;
   mode: "view" | "create" | "edit";

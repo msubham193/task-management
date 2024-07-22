@@ -5,7 +5,7 @@ import toast from "react-hot-toast";
 import { formatDate } from "../utils/formateDate";
 import { formatDistanceToNow, parseISO } from "date-fns";
 
-const TaskCard = ({ task, onDelete, setTask, tasks, openModal}) => {
+const TaskCard = ({ task, setTask, tasks, openModal}) => {
   const handleDelete = async () => {
     try {
       await deleteTask(task._id);
